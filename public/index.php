@@ -122,7 +122,7 @@ $system_path = '../system';
  *
  * NO TRAILING SLASH!
  */
-$application_folder = '/var/www/test_task/application';
+$application_folder = '/application/application';
 
 /*
  *---------------------------------------------------------------
@@ -137,7 +137,7 @@ $application_folder = '/var/www/test_task/application';
  *
  * NO TRAILING SLASH!
  */
-$view_folder = '';
+$view_folder = 'public';
 
 
 /*
