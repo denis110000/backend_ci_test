@@ -128,7 +128,7 @@ class Main_page extends MY_Controller
         try {
             $booster = new Boosterpack_model($id);
         } catch (Exception $e) {
-            return $this->response_error('Not found boosterpack');
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
         }
 
         $user_id = $this->input->get_post('user_id');
@@ -139,7 +139,7 @@ class Main_page extends MY_Controller
         $user = new User_model($user_id);
 
         if ($user->get_wallet_balance() < $booster->get_price()) {
-            return $this->response_error('No money');
+            return $this->response_info('No money');
         }
         $amount = Boosterpack_model::buy($user_id, $id);
 
@@ -156,7 +156,7 @@ class Main_page extends MY_Controller
         $user = new User_model($user_id);
 
         if ($user->get_likes() < 1) {
-            return $this->response_error('No likes');
+            return $this->response_info('No likes');
         }
 
         User_model::like($user_id);
