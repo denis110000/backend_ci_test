@@ -124,4 +124,42 @@ class Boosterpack_model extends CI_Emerald_Model
         return (App::get_ci()->s->get_affected_rows() > 0);
     }
 
+    /**
+     * @param int $user_id
+     * @param int $boosterpack_id
+     * @return int
+     */
+    public static function buy(int $user_id, int $boosterpack_id)
+    {
+        $likes = 0;
+        App::get_ci()->s->start_trans();
+        try {
+            $booster = new self($boosterpack_id);
+
+            $to = $booster->get_price() + $booster->get_bank();
+            $likes = rand(1, $to);
+            $bank = $booster->get_price() - $likes;
+
+            User_model::changeMoney($user_id, $booster->get_price(), Account_model::TYPE_WITHDRAWAL);
+
+            $user = new User_model($user_id);
+            $user->set_likes($likes);
+
+            Account_model::create([
+                'amount' => $likes,
+                'user_id' => $user_id,
+                'type' => Account_model::TYPE_DEPOSIT,
+                'entity' => Account_model::ENTITY_LIKE
+            ]);
+            $booster->set_bank($bank);
+
+        } catch (Exception $e) {
+            App::get_ci()->s->rollback();
+        }
+
+        App::get_ci()->s->commit();
+
+        return $likes;
+    }
+
 }

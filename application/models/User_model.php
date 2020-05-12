@@ -28,6 +28,8 @@ class User_model extends CI_Emerald_Model {
     protected $wallet_total_refilled;
     /** @var float */
     protected $wallet_total_withdrawn;
+    /** @var int */
+    protected $likes;
     /** @var string */
     protected $time_created;
     /** @var string */
@@ -189,6 +191,25 @@ class User_model extends CI_Emerald_Model {
     }
 
     /**
+     * @return int
+     */
+    public function get_likes(): int
+    {
+        return $this->likes;
+    }
+
+    /**
+     * @param int $likes
+     *
+     * @return bool
+     */
+    public function set_likes(int $likes)
+    {
+        $this->likes = $likes;
+        return $this->save('likes', $likes);
+    }
+
+    /**
      * @return string
      */
     public function get_time_created(): string
@@ -230,6 +251,7 @@ class User_model extends CI_Emerald_Model {
     function __construct($id = NULL)
     {
         parent::__construct();
+        App::get_ci()->load->model('Account_model');
         $this->set_id($id);
     }
 
@@ -313,6 +335,7 @@ class User_model extends CI_Emerald_Model {
     /**
      * @param User_model $data
      * @return stdClass
+     * @throws Exception
      */
     private static function _preparation_default($data)
     {
@@ -374,6 +397,68 @@ class User_model extends CI_Emerald_Model {
         }
     }
 
+    /**
+     * @param int $user_id
+     * @param float $amount
+     * @param string $type
+     * @return bool
+     * @throws Exception
+     */
+    public static function changeMoney(int $user_id, float $amount, string $type)
+    {
+        App::get_ci()->s->start_trans();
+        try {
+            $user = new self($user_id);
 
+            Account_model::create([
+                'amount' => $amount,
+                'user_id' => $user_id,
+                'type' => $type,
+                'entity' => Account_model::ENTITY_MONEY
+            ]);
 
+            if ($type == Account_model::TYPE_WITHDRAWAL) {
+                $withdrawal = $user->get_wallet_total_withdrawn() + $amount;
+                $user->set_wallet_total_withdrawn($withdrawal);
+                $amount -= $user->get_wallet_balance();
+
+            } else {
+                $refilled = $user->get_wallet_total_refilled() + $amount;
+                $user->set_wallet_total_refilled($refilled);
+                $amount += $user->get_wallet_balance();
+            }
+            $user->set_wallet_balance($amount);
+        } catch (Exception $e) {
+            App::get_ci()->s->rollback();
+        }
+        App::get_ci()->s->commit();
+
+        return true;
+    }
+
+    /**
+     * @param int $user_id
+     * @return bool
+     */
+    public static function like(int $user_id)
+    {
+        App::get_ci()->s->start_trans();
+        try {
+            $user = new self($user_id);
+
+            Account_model::create([
+                'amount' => 1,
+                'user_id' => $user_id,
+                'type' => Account_model::TYPE_WITHDRAWAL,
+                'entity' => Account_model::ENTITY_LIKE
+            ]);
+            $likes = $user->get_likes() - 1;
+            $user->set_likes($likes);
+        } catch (Exception $e) {
+            App::get_ci()->s->rollback();
+        }
+        App::get_ci()->s->commit();
+
+        return true;
+    }
 }

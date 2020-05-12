@@ -137,6 +137,7 @@ class Post_model extends CI_Emerald_Model
 
     /**
      * @return Comment_model[]
+     * @throws Exception
      */
     public function get_comments()
     {
@@ -152,6 +153,7 @@ class Post_model extends CI_Emerald_Model
 
     /**
      * @return User_model
+     * @throws Exception
      */
     public function get_user():User_model
     {
@@ -236,6 +238,7 @@ class Post_model extends CI_Emerald_Model
     /**
      * @param Post_model[] $data
      * @return stdClass[]
+     * @throws Exception
      */
     private static function _preparation_main_page($data)
     {
@@ -265,6 +268,7 @@ class Post_model extends CI_Emerald_Model
     /**
      * @param Post_model $data
      * @return stdClass
+     * @throws Exception
      */
     private static function _preparation_full_info(Post_model $data)
     {

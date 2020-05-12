@@ -185,3 +185,28 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+ALTER TABLE user ADD likes int(10) NULL;
+ALTER TABLE user
+  MODIFY COLUMN likes int(10) AFTER wallet_total_withdrawn;
+
+ALTER TABLE comment ADD like_count int unsigned DEFAULT 0 NULL;
+ALTER TABLE comment
+  MODIFY COLUMN like_count int unsigned DEFAULT 0 AFTER text;
+
+ALTER TABLE post ADD like_count int unsigned DEFAULT 0 NULL;
+ALTER TABLE post
+  MODIFY COLUMN like_count int unsigned DEFAULT 0 AFTER img;
+
+create table account
+(
+  id      int unsigned auto_increment
+    primary key,
+  user_id int unsigned                  not null,
+  type    varchar(10)                   not null,
+  entity  varchar(10)                   not null,
+  amount  decimal(10, 2) default '0.00' null,
+  time_created timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  time_updated timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
